@@ -1,0 +1,594 @@
+{
+  "log": {
+    "level": "debug",
+    "timestamp": true
+  },
+  "listen": ":10010",
+  "outbounds": [
+    {
+      "tag": "9999",
+      "server": "127.0.0.1",
+      "server_port": 9999,
+      "version": "5",
+      "type": "socks"
+    },
+    {
+      "tag": "9909",
+      "server": "127.0.0.1",
+      "server_port": 9909,
+      "version": "5",
+      "type": "socks"
+    },
+    {
+      "tag": "10011",
+      "server": "127.0.0.1",
+      "server_port": 10011,
+      "version": "5",
+      "type": "socks"
+    },
+    {
+      "tag": "10012",
+      "server": "127.0.0.1",
+      "server_port": 10012,
+      "version": "5",
+      "type": "socks"
+    },
+    {
+      "tag": "10013",
+      "server": "127.0.0.1",
+      "server_port": 10013,
+      "version": "5",
+      "type": "socks"
+    },
+    {
+      "tag": "10014",
+      "server": "127.0.0.1",
+      "server_port": 10014,
+      "version": "5",
+      "type": "socks"
+    },
+    {
+      "tag": "10015",
+      "server": "127.0.0.1",
+      "server_port": 10015,
+      "version": "5",
+      "type": "socks"
+    },
+    {
+      "tag": "remote9999",
+      "server": "192.168.9.2",
+      "server_port": 9999,
+      "version": "5",
+      "type": "socks"
+    },
+    {
+      "tag": "remote5330",
+      "server": "192.168.9.2",
+      "server_port": 5330,
+      "version": "5",
+      "type": "socks"
+    }
+  ],
+  "subscriptions": [
+    {
+      "name": "aggregator",
+      "url": "https://ghfast.top/https://raw.githubusercontent.com/mahdibland/ShadowsocksAggregator/master/sub/sub_merge.txt",
+      "generate_selector": true,
+      // "deduplication": true,
+      "process": [
+        {
+          // "remove": true,
+          "remove_emoji": true,
+          "exclude_type": ["http", "socks5", "shadowsocksr"]
+        }
+      ]
+    },
+    {
+      "name": "collector",
+      "url": "https://ghfast.top/https://raw.githubusercontent.com/Mahdi0024/ProxyCollector/master/sub/singbox.json",
+      "generate_selector": true,
+      // "deduplication": true,
+      "process": [
+        {
+          // "remove": true,
+          "remove_emoji": true,
+          "exclude_type": ["http", "socks5", "shadowsocksr"]
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "extend": "tun",
+      "dns_local": "local",
+      "custom_tun":{
+        "route_exclude_address_set": "geosite-tld-cn" // replace defualt
+      },
+      "name": "android"
+    },
+    {
+      "extend": "tun",
+      "dns_local": "dhcp://auto",
+      "custom_tun":{
+        "route_exclude_address_set": "geosite-tld-cn" // replace default
+      },
+      "name": "windows"
+    },
+    {
+      "extend": "default",
+      "domain_strategy": "prefer_ipv4",
+      "domain_strategy_local": "prefer_ipv6",
+      // "auto_redirect": false,
+      "remote_resolve": false,
+      "enable_fakeip": true,
+      "custom_fakeip": {
+        "inet6_range": "fc00::/18",
+        "inet4_range": "198.18.0.0/15"
+      },
+      // "dns_local": "dhcp://auto",
+      "custom_tun": {
+        "address": [
+          "fd00::1/126",
+          "172.19.0.1/30"
+        ],
+        "auto_route": true,
+        "strict_route": true,
+        "platform": {
+          "http_proxy": {
+            "server": "127.0.0.1",
+            "server_port": 10000,
+            "enabled": true
+          }
+        },
+        "route_exclude_address": [
+          "fd7a:115c:a1e0::/48",
+          "100.64.0.0/10"
+        ],
+        // "route_exclude_address_set": "geoip-cn",
+        "stack": "system"
+      },
+      "disable_tun": false,
+      // "disable_system_proxy": false,
+      "custom_mixed": {
+        "set_system_proxy": true
+      },
+      "name": "tun"
+    },
+    {
+      // "extend": "",
+      // ============ Global ============
+      "log": {
+        "level": "info",
+        "timestamp": false
+      },
+      // "domain_strategy": "prefer_ipv4",
+      // "domain_strategy_local": "prefer_ipv6",
+      // "disable_sniff": true,
+      // "disable_rule_action": true,
+      // "disable_traffic_bypass": true,
+      "remote_resolve": true,
+      // DNS
+      "dns": "https://serverless-dns.touhoured.cfd/dns-query",
+      "dns_local": "local",
+      "dns_servers": [
+        {
+          "tag": "anti-ip-attribution",
+          "address": "tls://223.5.5.5",
+          "detour": "anti-ip-attribution"
+        },
+        {
+          "tag": "wechat",
+          "address": "tls://223.5.5.5",
+          "detour": "wechat"
+        },
+        {
+          "tag": "googlefcm",
+          "address": "tls://223.5.5.5",
+          "detour": "googlefcm"
+        },
+        {
+          "tag": "onedrive",
+          "address": "tls://223.5.5.5",
+          "detour": "onedrive"
+        },
+        {
+          "tag": "direct",
+          "address": "https://serverless-dns.touhoured.cfd/dns-query",
+          "detour": "direct"
+        }
+      ],
+      "pre_dns_rules": [
+        {
+          "type": "logical",
+          "mode": "or",
+          "rules": [
+            {
+              "domain_suffix": [
+                "cdn77.org",
+                "cdn77.com"
+              ]
+            },
+            {
+              "process_name": [
+                "gephgui-wry.exe",
+                "geph5-client-gui.exe",
+                "geph4-client.exe",
+                "geph5-client.exe",
+                "geph5-client",
+                "geph4-client"
+              ]
+            }
+          ],
+          "server": "local"
+        },
+        {
+          "rule_set": "geosite-private",
+          "server": "local"
+        },
+        {
+          "domain_suffix": [
+            "bsbsb.top",
+            "ghfast.top",
+            "ghproxy.cc",
+            "deeplx.org",
+            "dandanplay.net",
+            "metacubex.one",
+            "yacd.haishan.me"
+          ],
+          "server": "local"
+        },
+        {
+          "rule_set": "rule-provider-direct-noip",
+          "server": "local"
+        },
+        {
+          "rule_set": "rule-provider-proxy-noip",
+          "server": "anti-ip-attribution"
+        },
+        {
+          "domain_suffix": [
+            "extshort.weixin.qq.com",
+            "short.weixin.qq.com"
+          ],
+          "server": "wechat"
+        },
+        {
+          "rule_set": "geosite-googlefcm",
+          "server": "googlefcm"
+        },
+        {
+          "rule_set": "geosite-onedrive",
+          "server": "onedrive"
+        }
+      ],
+      "custom_dns_rules": [
+      ],
+      // ============ Inbound ============
+      "inbounds": [
+        {
+          "tag": "dns",
+          "listen": "::",
+          "listen_port": 10001,
+          "type": "direct"
+        }
+      ],
+      "disable_tun": true,
+      // "disable_system_proxy": true,
+      "custom_mixed": {
+        "listen": "::",
+        "listen_port": 10000
+      },
+      // ============ Outbound ============
+      "extra_groups": [
+        {
+          "tag": "proxy",
+          "type": "selector",
+          "custom_selector":{
+            "outbounds": [
+              "default"
+            ]
+          }
+        },
+        {
+          "tag":"anti-ip-attribution",
+          "type":"selector",
+          "custom_selector":{
+            "outbounds": [
+              "direct",
+              "proxy"
+            ]
+          }
+        },
+        {
+          "tag":"wechat",
+          "type":"selector",
+          "custom_selector":{
+            "outbounds": [
+              "direct",
+              "proxy"
+            ]
+          }
+        },
+        {
+          "tag":"googlefcm",
+          "type":"selector",
+          "custom_selector":{
+            "outbounds": [
+              "direct",
+              "proxy"
+            ]
+          }
+        },
+        {
+          "tag":"onedrive",
+          "type":"selector",
+          "custom_selector":{
+            "outbounds": [
+              "direct",
+              "proxy"
+            ]
+          }
+        },
+        {
+          "tag": "HongKong",
+          "type": "selector",
+          "filter": "🇭🇰|HK|hk|香港|港|HongKong"
+        },
+        {
+          "tag": "TaiWan",
+          "type": "selector",
+          "filter": "🇹🇼|TW|tw|台湾|臺灣|台|Taiwan"
+        },
+        {
+          "tag": "Singapore",
+          "type": "selector",
+          "filter": "🇸🇬|SG|sg|新加坡|狮|Singapore"
+        },
+        {
+          "tag": "Japan",
+          "type": "selector",
+          "filter": "🇯🇵|JP|jp|日本|日|Japan"
+        },
+        {
+          "tag": "America",
+          "type": "selector",
+          "filter": "🇺🇸|US|us|美国|美|United States"
+        },
+        {
+          "tag": "Others",
+          "type": "selector",
+          "exclude": "🇭🇰|HK|hk|香港|香|🇹🇼|TW|tw|台湾|台|🇸🇬|SG|sg|新加坡|狮|🇯🇵|JP|jp|日本|日|🇺🇸|US|us|美国|美|[Tt]raffic|[Ee]xpire"
+        },
+        {
+          "tag": "auto",
+          "type": "urltest",
+          "exclude": "网站|地址|剩余|过期|时间|有效|[Tt]raffic|[Ee]xpire"
+        }
+      ],
+      "direct_tag": "direct",
+      "default_tag": "default",
+      "urltest_tag": "urltest",
+      // "custom_direct": {},
+      "custom_selector": {
+        "outbounds": [
+          "direct"
+        ]
+      },
+      // "custom_urltest": {},
+      // ============ Route ============
+      "pre_rules": [
+        {
+          "type": "logical",
+          "mode": "or",
+          "rules": [
+            {
+              "domain_suffix": [
+                "cdn77.org",
+                "cdn77.com"
+              ]
+            },
+            {
+              "process_name": [
+                "gephgui-wry.exe",
+                "geph5-client-gui.exe",
+                "geph4-client.exe",
+                "geph5-client.exe",
+                "geph5-client",
+                "geph4-client"
+              ]
+            }
+          ],
+          "outbound": "direct"
+        },
+        {
+          "rule_set": "geosite-private",
+          "outbound": "direct"
+        },
+        {
+          "type": "logical",
+          "mode": "or",
+          "rules": [
+            {
+              "port": 853
+            },
+            {
+              "protocol": "stun"
+            },
+            {
+              "network": "udp",
+              "port": 443
+            },
+            {
+              "protocol": "quic"
+            }
+          ],
+          "action": "reject"
+        },
+        {
+          "rule_set": [
+            "rule-provider-reject",
+            "rule-MeepoMaster-adg-dns",
+            "rule-Cats-Team-adrules-singbox",
+            "geosite-category-httpdns-cn",
+            "geosite-category-ads-all"
+          ],
+          "action": "reject"
+        },
+        {
+          "domain": [
+            "block.test", // only test
+            "black.qimo.ink", // biliroming blacklist
+            "2fa.qwq2333.top", // QAuxiliary
+            "api.qwq2333.top", // QAuxiliary
+            "ntp.msn.cn" // edge startpage
+          ],
+          "domain_suffix": [
+            ".mcdn.bilivideo.cn",
+            ".szbdyd.com"
+          ],
+          "domain_regex": [
+            "cn-.+\\.bilivideo\\.com$",
+            "-pcdn-.?\\.biliapi\\.net$"
+          ],
+          "action": "reject"
+        },
+        {
+          "domain_suffix": [
+            "bsbsb.top",
+            "ghfast.top",
+            "ghproxy.cc",
+            "deeplx.org",
+            "dandanplay.net",
+            "metacubex.one",
+            "yacd.haishan.me"
+          ],
+          "outbound": "direct"
+        },
+        {
+          "rule_set": "rule-provider-direct",
+          "outbound": "direct"
+        },
+        {
+          "rule_set": "rule-provider-proxy",
+          "outbound": "anti-ip-attribution"
+        },
+        {
+          "domain_suffix": [
+            "extshort.weixin.qq.com",
+            "short.weixin.qq.com"
+          ],
+          "outbound": "wechat"
+        },
+        {
+          "rule_set": "geosite-googlefcm",
+          "outbound": "googlefcm"
+        },
+        {
+          "rule_set": "geosite-onedrive",
+          "outbound": "onedrive"
+        }
+      ],
+      // "custom_rules": [],
+      // "enable_jsdelivr": true,
+      "custom_rule_set": [
+        {
+          "type": "github",
+          "repository": "MeepoMaster/sing-box-ruleset",
+          "path": "main/",
+          "prefix": "rule-MeepoMaster-",
+          "rule_set": [
+            "adg-dns"
+          ]
+        },
+        {
+          "type": "github",
+          "repository": "Cats-Team/AdRules",
+          "path": "main/",
+          "prefix": "rule-Cats-Team-",
+          "rule_set": [
+            "adrules-singbox"
+          ]
+        },
+        {
+          "type": "github",
+          "repository": "touhoured/sing-box-geosite",
+          "path": "main/rule/",
+          "prefix": "",
+          "rule_set": [
+            "rule-provider-reject-noip",
+            "rule-provider-direct-noip",
+            "rule-provider-proxy-noip",
+            "rule-provider-reject",
+            "rule-provider-direct",
+            "rule-provider-proxy"
+          ]
+        },
+        {
+          "type": "github",
+          "repository": "MetaCubeX/meta-rules-dat",
+          "path": "sing/geo/geosite/",
+          "prefix": "geosite-",
+          "rule_set": [
+            "private",
+            "category-httpdns-cn",
+            "category-ads-all",
+            "googlefcm",
+            "onedrive",
+            "geolocation-!cn",
+            "geolocation-cn",
+            "tld-cn",
+            "cn"
+          ]
+        },
+        {
+          "type": "github",
+          "repository": "MetaCubeX/meta-rules-dat",
+          "path": "sing/geo/geoip/",
+          "prefix": "geoip-",
+          "rule_set": [
+            "cn"
+          ]
+        }
+      ],
+      // "post_rule_set": [],
+      // ============ Experimental ============
+      // "disable_cache_file": true,
+      "disable_clash_mode": true,
+      // "clash_mode_rule": "",
+      // "clash_mode_global": "",
+      // "clash_mode_direct": "",
+      "custom_clash_api": {
+        // "default_mode": "Leak",
+        // "default_mode": "Rule",
+        "secret": "thisIsPassword@",
+        "external_controller": ":9090"
+      },
+      // ============ Debug ============
+      // "pprof_listen": "",
+      // "memory_limit": "",
+      "name": "default"
+    }
+  ],
+  "profiles": [
+    {
+      "name": "windows",
+      "template": "windows",
+      "outbound": [
+        "9999",
+        "9909",
+        "remote9999",
+        "remote5330",
+        "10011",
+        "10012",
+        "10013",
+        "10014",
+        "10015"
+      ],
+      "subscription": [
+        "dreamfunder",
+        "collector",
+        "aggregator"
+      ]
+    }
+  ]
+}
