@@ -93,19 +93,11 @@
       // {"domain":["dns.cloudflare.com","dns.cloudflare-dns.com","dns.google"],"tls_record_fragment":true,"action":"route-options"},
 
       // ------- gfw and blacklist -------
-      {"type":"logical","mode":"and","rules":[
-        {"rule_set":"geosite-geolocation-!cn"},
-        {"type":"logical","mode":"or","rules":[
-          {"clash_mode":"blacklist_fakeip"},
-          {"clash_mode":"blacklist"}
-        ]}
-      ],"outbound":"proxy"},
-      {"type":"logical","mode":"and","rules":[
-        {"rule_set":"geosite-gfw"},
-        {"type":"logical","mode":"or","rules":[
-          {"clash_mode":"gfw_fakeip"},
-          {"clash_mode":"gfw"}
-        ]}
+      {"type":"logical","mode":"or","rules":[
+        {"clash_mode":"blacklist_fakeip","rule_set":"geosite-geolocation-!cn"},
+        {"clash_mode":"blacklist","rule_set":"geosite-geolocation-!cn"},
+        {"clash_mode":"gfw_fakeip","rule_set":"geosite-gfw"},
+        {"clash_mode":"gfw","rule_set":"geosite-gfw"}
       ],"outbound":"proxy"},
       {"type":"logical","mode":"or","rules":[
         {"clash_mode":"blacklist_fakeip"},
@@ -121,8 +113,8 @@
       {"clash_mode":"whilelist_only","invert":true,"action":"resolve"},
       // ------- bypass cn ip -------
       {"type":"logical","mode":"and","rules":[
-        {"rule_set":"geoip-cn"},
-        {"rule_set":"geosite-geolocation-!cn","invert":true}
+        {"rule_set":"geosite-geolocation-!cn","invert":true},
+        {"rule_set":"geoip-cn"}
       ],"outbound":"direct"},
         
       {"domain":"end.end","override_address":"1.1.1.1","action":"route-options"}
@@ -158,7 +150,7 @@
     "reverse_mapping":true,
     "independent_cache":true,
     "rules":[
-      // {"ip_accept_any":true,"server":"hosts"},
+      {"ip_accept_any":true,"server":"hosts"},
       
       // ------- bypass local -------
       {"rule_set":"rule-process","server":"local"},
@@ -186,35 +178,27 @@
       {"rule_set":"geosite-googlefcm","server":"googlefcm"},
       {"rule_set":"geosite-onedrive","server":"onedrive"},
       
-      // ------- gfw and blacklist -------
-      {"type":"logical","mode":"and","rules":[
-        {"query_type":["AAAA","A"]},
-        {"type":"logical","mode":"or","rules":[
-          {"clash_mode":"blacklist_fakeip"},
-          {"clash_mode":"gfw_fakeip"}
-        ]}
+      // ------- gfw/blacklist -------
+      // ------- fakeip -------
+      {"type":"logical","mode":"or","rules":[
+        {"clash_mode":"blacklist_fakeip","rule_set":"geosite-geolocation-!cn","query_type":["AAAA","A"]},
+        {"clash_mode":"gfw_fakeip","rule_set":"geosite-gfw","query_type":["AAAA","A"]}
       ],"server":"fakeip"},
-      {"type":"logical","mode":"and","rules":[
-        {"query_type":"AAAA"},
-        {"type":"logical","mode":"or","rules":[
-          {"clash_mode":"blacklist"},
-          {"clash_mode":"gfw"}
-        ]}
-      ],"action":"reject"},
-      {"type":"logical","mode":"and","rules":[
-        {"rule_set":"geosite-geolocation-!cn"},
-        {"type":"logical","mode":"or","rules":[
-          {"clash_mode":"blacklist_fakeip"},
-          {"clash_mode":"blacklist"}
-        ]}
-      ],"server":"proxy"},
-      {"type":"logical","mode":"and","rules":[
-        {"rule_set":"geosite-gfw"},
-        {"type":"logical","mode":"or","rules":[
-          {"clash_mode":"gfw_fakeip"},
-          {"clash_mode":"gfw"}
-        ]}
-      ],"server":"proxy"},
+      // ------- proxy -------
+      {"type":"logical","mode":"or","rules":[
+        {"clash_mode":"blacklist_fakeip","rule_set":"geosite-geolocation-!cn","ip_accept_any":true},
+        {"clash_mode":"blacklist","rule_set":"geosite-geolocation-!cn","ip_accept_any":true},
+        {"clash_mode":"gfw_fakeip","rule_set":"geosite-gfw","ip_accept_any":true},
+        {"clash_mode":"gfw","rule_set":"geosite-gfw","ip_accept_any":true}
+      ],"strategy":"ipv4_only","server":"proxy"},
+      // ------- fallback -------
+      {"type":"logical","mode":"or","rules":[
+        {"clash_mode":"blacklist_fakeip","rule_set":"geosite-geolocation-!cn"},
+        {"clash_mode":"blacklist","rule_set":"geosite-geolocation-!cn"},
+        {"clash_mode":"gfw_fakeip","rule_set":"geosite-gfw"},
+        {"clash_mode":"gfw","rule_set":"geosite-gfw"}
+      ],"strategy":"ipv4_only","server":"fallback"},
+      // ------- final -------
       {"type":"logical","mode":"or","rules":[
         {"clash_mode":"blacklist_fakeip"},
         {"clash_mode":"blacklist"},
@@ -223,21 +207,35 @@
       ],"server":"local"},
 
       // ------- whilelist -------
+      // ------- bypass cn -------
       {"rule_set":["geosite-category-games@cn","geosite-steam@cn","geosite-microsoft@cn","geosite-apple@cn","geosite-apple-cn"],"server":"local"},
       {"rule_set":"geosite-cn","server":"local"},
-      // ------- check ip -------
+      // ------- 2nd check cn ip -------
       {"type":"logical","mode":"and","rules":[
         {"rule_set":"geosite-geolocation-!cn","invert":true},
         {"rule_set":"geoip-cn"},
-        {"clash_mode":"whilelist"}
+        {"type":"logical","mode":"or","rules":[
+          {"clash_mode":"whilelist_fakeip"},
+          {"clash_mode":"whilelist"}
+        ]}
       ],"client_subnet":"202.103.192.0/18","server":"proxy"},
+      // ------- fallback -------
+      {"type":"logical","mode":"and","rules":[
+        {"rule_set":"geosite-geolocation-!cn","invert":true},
+        {"rule_set":"geoip-cn"},
+        {"type":"logical","mode":"or","rules":[
+          {"clash_mode":"whilelist_fakeip"},
+          {"clash_mode":"whilelist"}
+        ]}
+      ],"client_subnet":"202.103.192.0/18","server":"fallback"},
       {"type":"logical","mode":"and","rules":[
         {"rule_set":"geosite-geolocation-!cn","invert":true},
         {"rule_set":"geoip-cn"},
         {"clash_mode":"whilelist_leak"}
-      ],"client_subnet":"202.103.192.0/18","server":"local"},
-      
-      // ------- block not cn ipv6 -------
+      ],"server":"local"},
+      // ------- fakeip -------
+      {"query_type":["AAAA","A"],"clash_mode":"whilelist_fakeip","server":"fakeip"},
+      // ------- final -------
       {"strategy":"ipv4_only","ip_accept_any":true,"server":"proxy"},
       {"strategy":"ipv4_only","server":"fallback"},
       // {"strategy":"ipv4_only","server":"proxy"},
@@ -255,7 +253,7 @@
       // {"tag":"local","server":"223.5.5.5","type":"udp"},
       {"tag":"local","type":"dhcp"},
       // {"tag":"local","type":"local"}, 
-      {"tag":"hosts","predefined":{"time.cloudflare.com":["162.159.200.123","162.159.200.1"],"dns.pub":["1.12.12.21","120.53.53.53"],"dns.alidns.com":["223.5.5.5","223.6.6.6"],"dns.google":["8.8.8.8","8.8.4.4"],"dns.cloudflare.com":["104.16.132.229","104.16.133.229"],"cloudflare-dns.com":["104.16.248.249","104.16.249.249"],"localhost":["127.0.0.1","::1"]},"type":"hosts"}
+      {"tag":"hosts","predefined":{"time.cloudflare.com":["162.159.200.123","162.159.200.1"],"dns.pub":["1.12.12.21","120.53.53.53"],"dns.alidns.com":["223.5.5.5","223.6.6.6"],"dns.google":["8.8.4.4"],"dns.cloudflare.com":["104.16.132.229","104.16.133.229"],"cloudflare-dns.com":["104.16.248.249","104.16.249.249"],"localhost":["127.0.0.1","::1"]},"type":"hosts"}
     ]
   },
   "outbounds":[
@@ -271,19 +269,9 @@
     {"tag":"direct","type":"direct"}
   ],
   "inbounds":[
-    {
-      "tag":"tun",
-      "address":["fd00::1/126","172.19.0.1/30"],
-      "auto_route":true,
-      // "auto_redirect":true,"exclude_uid_range":"0:999",
-      "strict_route":true,
-      // "exclude_interface":["tailscale0"],"route_exclude_address":["100.64.0.0/10"],
-      // "route_exclude_address_set":["geoip-cn"],
-      "interface_name":"sing-tun",
-      // "platform":{"http_proxy":{"server":"127.0.0.1","server_port":10000,"enabled":true}},
-      "stack":"system",
-      "type":"tun"
-    },
+    // {"tag":"tun","address":["fd00::1/126","172.19.0.1/30"],"auto_route":true,"strict_route":true,"interface_name":"sing-tun","platform":{"http_proxy":{"server":"127.0.0.1","server_port":10000,"enabled":true}},"stack":"system","type":"tun"},
+    {"tag":"tun","address":["fd00::1/126","172.19.0.1/30"],"auto_route":true,"strict_route":true,"interface_name":"sing-tun","stack":"system","type":"tun"},
+    // {"tag":"tun","address":["fd00::1/126","172.19.0.1/30"],"auto_route":true,"auto_redirect":true,"exclude_uid_range":"0:999","strict_route":true,"exclude_interface":["tailscale0"],"route_exclude_address":["100.64.0.0/10"],"route_exclude_address_set":["geoip-cn"],"interface_name":"sing-tun","stack":"system","type":"tun"},
 
     // {"tag":"dns","type":"direct","listen":"127.0.0.53","listen_port":53},
     // {"tag":"dns","type":"direct","listen":"::","listen_port":53},
@@ -298,10 +286,10 @@
   },
   "log":{
     "timestamp":false,
-    "level":"info"
+    "level":"trace"
   },
   "experimental":{
     "cache_file":{"path":"1.12.db","store_fakeip":true,"store_rdrc":true,"enabled":true},
-    "clash_api":{"default_mode":"Rule","secret":"thisIsPassword@","external_controller":":10020"}
+    "clash_api":{"default_mode":"whilelist","secret":"thisIsPassword@","external_controller":":10020"}
   }
 }
