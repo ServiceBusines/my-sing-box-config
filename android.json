@@ -17,7 +17,7 @@
 
       // ------- bypass local -------
       {"ip_is_private":true,"outbound":"direct"},
-      {"rule_set":"rule-process","outbound":"direct"},
+      // {"rule_set":"rule-process","outbound":"direct"},
 
       // ------- real Global/Direct -------
       {"clash_mode":"Direct","outbound":"direct"},
@@ -115,7 +115,7 @@
     ],
     "rule_set":[
       {"tag":"rule-geph-broker","rules":[{"domain":["vuejs.org","www.cdn77.com"]}]},
-      {"tag":"rule-process","rules":[{"process_name":["tailscaled","tailscaled.exe","mihomo","mihomo.exe","geph4-client","geph4-client.exe","gephgui-wry","gephgui-wry.exe","geph5-client-gui","geph5-client-gui.exe","geph5-client","geph5-client.exe","sing-box.exe","sing-box"]}]},
+      // {"tag":"rule-process","rules":[{"process_name":["tailscaled","tailscaled.exe","mihomo","mihomo.exe","geph4-client","geph4-client.exe","gephgui-wry","gephgui-wry.exe","geph5-client-gui","geph5-client-gui.exe","geph5-client","geph5-client.exe","sing-box.exe","sing-box"]}]},
       {"tag":"geosite-private","format":"binary","url":"https://ghfast.top/https://raw.githubusercontent.com/nekolsd/sing-geosite/rule-set/geosite-private.srs","download_detour":"direct","type":"remote"},
       {"tag":"geosite-ad-cat","format":"binary","url":"https://ghfast.top/https://raw.githubusercontent.com/Cats-Team/AdRules/main/adrules-singbox.srs","download_detour":"direct","type":"remote"},
       {"tag":"geosite-ad-AWAvenue","format":"binary","url":"https://ghfast.top/https://raw.githubusercontent.com/TG-Twilight/AWAvenue-Ads-Rule/main/Filters/AWAvenue-Ads-Rule-Singbox-regex.srs","download_detour":"direct","type":"remote"},
@@ -148,7 +148,7 @@
       {"ip_accept_any":true,"server":"hosts"},
       
       // ------- bypass local -------
-      {"rule_set":"rule-process","server":"local"},
+      // {"rule_set":"rule-process","server":"local"},
       {"rule_set":"rule-geph-broker","server":"local"},
       {"rule_set":"geosite-private","server":"local"},
 
@@ -204,11 +204,12 @@
       // ------- block not cn ipv6 -------
       {"strategy":"ipv4_only","ip_accept_any":true,"server":"proxy"},
       {"strategy":"ipv4_only","server":"fallback"},
+      // {"strategy":"ipv4_only","server":"proxy"},
 
       {"domain":"end.end","action":"predefined","rcode":"NOERROR","answer":"one.one.one.one. IN A 1.1.1.1"}
     ],
     "servers":[
-      {"tag":"proxy","server":"dns.google","domain_resolver":"hosts","detour":"proxy","type":"https"},
+      {"tag":"proxy","server":"dns.google","connect_timeout":"1s","domain_resolver":"hosts","detour":"proxy","type":"https"},
       {"tag":"fallback","server":"dns.cloudflare.com","domain_resolver":"hosts","detour":"proxy","type":"https"},
       {"tag":"googlefcm","server":"dns.alidns.com","domain_resolver":"hosts","detour":"googlefcm","type":"https"},
       {"tag":"onedrive","server":"dns.alidns.com","domain_resolver":"hosts","detour":"onedrive","type":"https"},

@@ -204,11 +204,12 @@
       // ------- block not cn ipv6 -------
       {"strategy":"ipv4_only","ip_accept_any":true,"server":"proxy"},
       {"strategy":"ipv4_only","server":"fallback"},
+      // {"strategy":"ipv4_only","server":"proxy"},
 
       {"domain":"end.end","action":"predefined","rcode":"NOERROR","answer":"one.one.one.one. IN A 1.1.1.1"}
     ],
     "servers":[
-      {"tag":"proxy","server":"dns.google","domain_resolver":"hosts","detour":"proxy","type":"https"},
+      {"tag":"proxy","server":"dns.google","connect_timeout":"1s","domain_resolver":"hosts","detour":"proxy","type":"https"},
       {"tag":"fallback","server":"dns.cloudflare.com","domain_resolver":"hosts","detour":"proxy","type":"https"},
       {"tag":"googlefcm","server":"dns.alidns.com","domain_resolver":"hosts","detour":"googlefcm","type":"https"},
       {"tag":"onedrive","server":"dns.alidns.com","domain_resolver":"hosts","detour":"onedrive","type":"https"},
