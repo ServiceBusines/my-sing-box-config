@@ -27,23 +27,28 @@
       {"type":"logical","mode":"and","rules":[
           {"rule_set":"geoip-telegram","invert":true},
           {"type":"logical","mode":"or","rules":[
-            {"clash_mode":"gfw"},
-            {"clash_mode":"blacklist"}
-          ]}
+          {"clash_mode":"blacklist_fakeip"},
+          {"clash_mode":"blacklist"},
+          {"clash_mode":"gfw_fakeip"},
+          {"clash_mode":"gfw"}
+        ],"invert":true}
       ],"sniffer":["dns","stun","http","tls","quic"],"timeout":"30ms","action":"sniff"},
 
       // ------- route sniff -------
       {"type":"logical","mode":"and","rules":[
-        {"clash_mode":"gfw","invert":true},
-        {"clash_mode":"blacklist","invert":true},
         {"rule_set":"geoip-telegram","invert":true},
         {"inbound":["dns","direct","tun"]},
-        {"port":[80,443,853,8080,8443]}
+        {"port":[80,443,853,8080,8443]},
+        {"type":"logical","mode":"or","rules":[
+          {"clash_mode":"blacklist_fakeip"},
+          {"clash_mode":"blacklist"},
+          {"clash_mode":"gfw_fakeip"},
+          {"clash_mode":"gfw"}
+        ]}
       ],"sniffer":["http","tls","quic"],"timeout":"30ms","action":"sniff"},
-      {"type":"logical","mode":"or","rules":[
-        {"port":53},
-        {"protocol":"dns"}
-      ],"action":"hijack-dns"},
+
+      {"port":53,"action":"hijack-dns"},
+      {"protocol":"dns","action":"hijack-dns"},
 
       // ------- bypass local -------
       {"rule_set":"rule-geph-broker","outbound":"direct"},
@@ -51,22 +56,30 @@
 
       // ------- block unsupport protocol -------
       {"type":"logical","mode":"and","rules":[
-          {"clash_mode":"gfw","invert":true},
-          {"clash_mode":"blacklist","invert":true},
           {"type":"logical","mode":"or","rules":[
             {"port":853},
             {"protocol":"quic"},{"network":"udp","port":443},
             {"protocol":"stun"},{"port":3478}
-          ]}
+        ]},
+        {"type":"logical","mode":"or","rules":[
+          {"clash_mode":"blacklist_fakeip"},
+          {"clash_mode":"blacklist"},
+          {"clash_mode":"gfw_fakeip"},
+          {"clash_mode":"gfw"}
+        ],"invert":true}
       ],"action":"reject"},
       
       // ------- ad -------
       {"rule_set":["geosite-ad-AWAvenue","geosite-ad-cat","geosite-category-httpdns-cn","geosite-category-ads-all","rule-custom-block"],"action":"reject"},
       // ------- more ad -------
       {"type":"logical","mode":"and","rules":[
-        {"clash_mode":"gfw","invert":true},
-        {"clash_mode":"blacklist","invert":true},
-        {"rule_set":"geosite-ad-217heidai"}
+        {"rule_set":"geosite-ad-217heidai"},
+        {"type":"logical","mode":"or","rules":[
+          {"clash_mode":"blacklist_fakeip"},
+          {"clash_mode":"blacklist"},
+          {"clash_mode":"gfw_fakeip"},
+          {"clash_mode":"gfw"}
+        ],"invert":true}
       ],"action":"reject"},
 
       // ------- specific service -------
@@ -80,31 +93,32 @@
       // {"domain":["dns.cloudflare.com","dns.cloudflare-dns.com","dns.google"],"tls_record_fragment":true,"action":"route-options"},
 
       // ------- gfw and blacklist -------
-      {"type":"logical","mode":"or","rules":[
-        {"clash_mode":"gfw","rule_set":"geosite-gfw"},
-        {"clash_mode":"blacklist","rule_set":"geosite-geolocation-!cn"}
+      {"type":"logical","mode":"and","rules":[
+        {"rule_set":"geosite-geolocation-!cn"},
+        {"type":"logical","mode":"or","rules":[
+          {"clash_mode":"blacklist_fakeip"},
+          {"clash_mode":"blacklist"}
+        ]}
       ],"outbound":"proxy"},
-      // ------- gfw and blacklist final -------
+      {"type":"logical","mode":"and","rules":[
+        {"rule_set":"geosite-gfw"},
+        {"type":"logical","mode":"or","rules":[
+          {"clash_mode":"gfw_fakeip"},
+          {"clash_mode":"gfw"}
+        ]}
+      ],"outbound":"proxy"},
       {"type":"logical","mode":"or","rules":[
-        {"clash_mode":"gfw"},
-        {"clash_mode":"blacklist"}
+        {"clash_mode":"blacklist_fakeip"},
+        {"clash_mode":"blacklist"},
+        {"clash_mode":"gfw_fakeip"},
+        {"clash_mode":"gfw"}
       ],"outbound":"direct"},
 
       // ------- whilelist -------
       {"rule_set":["geosite-category-games@cn","geosite-steam@cn","geosite-microsoft@cn","geosite-apple@cn","geosite-apple-cn"],"outbound":"direct"},
       {"rule_set":"geosite-cn","outbound":"direct"},
       // ------- check ip -------
-      {"clash_mode":"Rule_only","invert":true,"action":"resolve"},
-      {"type":"logical","mode":"and","rules":[
-        {"rule_set":"geoip-cn"},
-        {"rule_set":"geosite-geolocation-!cn","invert":true},
-        {"clash_mode":"Rule_only","invert":true}
-      ],"action":"resolve"},
-      {"type":"logical","mode":"and","rules":[
-        {"rule_set":"geoip-cn","invert":true},
-        {"rule_set":"geosite-geolocation-!cn","invert":true},
-        {"clash_mode":"Rule_only","invert":true}
-      ],"strategy":"ipv4_only","action":"resolve"},
+      {"clash_mode":"whilelist_only","invert":true,"action":"resolve"},
       // ------- bypass cn ip -------
       {"type":"logical","mode":"and","rules":[
         {"rule_set":"geoip-cn"},
@@ -134,7 +148,6 @@
       {"tag":"geosite-cn","format":"binary","url":"https://ghfast.top/https://raw.githubusercontent.com/nekolsd/sing-geosite/rule-set/geosite-cn.srs","download_detour":"direct","type":"remote"},
       {"tag":"geoip-telegram","format":"binary","url":"https://ghfast.top/https://raw.githubusercontent.com/nekolsd/geoip/release/srs/telegram.srs","download_detour":"direct","type":"remote"},
       {"tag":"geoip-cn","format":"binary","url":"https://ghfast.top/https://raw.githubusercontent.com/nekolsd/geoip/release/srs/cn.srs","download_detour":"direct","type":"remote"},
-      {"tag":"geoip-private","format":"binary","url":"https://ghfast.top/https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geoip/private.srs","download_detour":"direct","type":"remote"},
       {"tag":"rule-custom-block","rules":[{"domain":["2fa.qwq2333.top","api.qwq2333.top"]}]}
     ]
   },
@@ -145,7 +158,7 @@
     "reverse_mapping":true,
     "independent_cache":true,
     "rules":[
-      {"ip_accept_any":true,"server":"hosts"},
+      // {"ip_accept_any":true,"server":"hosts"},
       
       // ------- bypass local -------
       // {"rule_set":"rule-process","server":"local"},
@@ -156,15 +169,17 @@
       {"clash_mode":"Direct","server":"local"},
       {"clash_mode":"Global","server":"proxy"},
 
-      {"clash_mode":"fakeip","query_type":["HTTPS","AAAA","A"],"server":"fakeip"},
-
       // ------- ad -------
       {"rule_set":["geosite-ad-AWAvenue","geosite-ad-cat","geosite-category-httpdns-cn","geosite-category-ads-all","rule-custom-block"],"action":"reject"},
       // ------- more ad -------
       {"type":"logical","mode":"and","rules":[
-        {"clash_mode":"gfw","invert":true},
-        {"clash_mode":"blacklist","invert":true},
-        {"rule_set":"geosite-ad-217heidai"}
+        {"rule_set":"geosite-ad-217heidai"},
+        {"type":"logical","mode":"or","rules":[
+          {"clash_mode":"blacklist_fakeip"},
+          {"clash_mode":"blacklist"},
+          {"clash_mode":"gfw_fakeip"},
+          {"clash_mode":"gfw"}
+        ],"invert":true}
       ],"action":"reject"},
       
       // ------- specific service -------
@@ -172,18 +187,39 @@
       {"rule_set":"geosite-onedrive","server":"onedrive"},
       
       // ------- gfw and blacklist -------
-      {"type":"logical","mode":"or","rules":[
-        {"clash_mode":"gfw","rule_set":"geosite-gfw","query_type":"AAAA"},
-        {"clash_mode":"blacklist","rule_set":"geosite-geolocation-!cn","query_type":"AAAA"}
+      {"type":"logical","mode":"and","rules":[
+        {"query_type":["AAAA","A"]},
+        {"type":"logical","mode":"or","rules":[
+          {"clash_mode":"blacklist_fakeip"},
+          {"clash_mode":"gfw_fakeip"}
+        ]}
+      ],"server":"fakeip"},
+      {"type":"logical","mode":"and","rules":[
+        {"query_type":"AAAA"},
+        {"type":"logical","mode":"or","rules":[
+          {"clash_mode":"blacklist"},
+          {"clash_mode":"gfw"}
+        ]}
       ],"action":"reject"},
-      {"type":"logical","mode":"or","rules":[
-        {"clash_mode":"gfw","rule_set":"geosite-gfw"},
-        {"clash_mode":"blacklist","rule_set":"geosite-geolocation-!cn"}
+      {"type":"logical","mode":"and","rules":[
+        {"rule_set":"geosite-geolocation-!cn"},
+        {"type":"logical","mode":"or","rules":[
+          {"clash_mode":"blacklist_fakeip"},
+          {"clash_mode":"blacklist"}
+        ]}
       ],"server":"proxy"},
-      // ------- gfw and blacklist final-------
+      {"type":"logical","mode":"and","rules":[
+        {"rule_set":"geosite-gfw"},
+        {"type":"logical","mode":"or","rules":[
+          {"clash_mode":"gfw_fakeip"},
+          {"clash_mode":"gfw"}
+        ]}
+      ],"server":"proxy"},
       {"type":"logical","mode":"or","rules":[
-        {"clash_mode":"gfw"},
-        {"clash_mode":"blacklist"}
+        {"clash_mode":"blacklist_fakeip"},
+        {"clash_mode":"blacklist"},
+        {"clash_mode":"gfw_fakeip"},
+        {"clash_mode":"gfw"}
       ],"server":"local"},
 
       // ------- whilelist -------
@@ -191,14 +227,14 @@
       {"rule_set":"geosite-cn","server":"local"},
       // ------- check ip -------
       {"type":"logical","mode":"and","rules":[
-        {"clash_mode":"Rule"},
         {"rule_set":"geosite-geolocation-!cn","invert":true},
-        {"rule_set":"geoip-cn"}
+        {"rule_set":"geoip-cn"},
+        {"clash_mode":"whilelist"}
       ],"client_subnet":"202.103.192.0/18","server":"proxy"},
       {"type":"logical","mode":"and","rules":[
-        {"clash_mode":"Leak"},
         {"rule_set":"geosite-geolocation-!cn","invert":true},
-        {"rule_set":"geoip-cn"}
+        {"rule_set":"geoip-cn"},
+        {"clash_mode":"whilelist_leak"}
       ],"client_subnet":"202.103.192.0/18","server":"local"},
       
       // ------- block not cn ipv6 -------
@@ -215,6 +251,7 @@
       {"tag":"onedrive","server":"dns.alidns.com","domain_resolver":"hosts","detour":"onedrive","type":"https"},
       {"tag":"direct","server":"dns.alidns.com","domain_resolver":"hosts","type":"https"},
       {"tag":"fakeip","inet4_range":"198.18.0.0/15","inet6_range":"fc00::/18","type":"fakeip"},
+      // {"tag":"local","server":"211.138.240.100","type":"udp"},
       // {"tag":"local","server":"223.5.5.5","type":"udp"},
       // {"tag":"local","type":"dhcp"},
       {"tag":"local","type":"local"}, 
@@ -261,10 +298,10 @@
   },
   "log":{
     "timestamp":false,
-    "level":"trace"
+    "level":"info"
   },
   "experimental":{
     "cache_file":{"path":"1.12.db","store_fakeip":true,"store_rdrc":true,"enabled":true},
-    "clash_api":{"default_mode":"Rule","secret":"thisIsPassword@","external_controller":":10020"}
+    "clash_api":{"default_mode":"whilelist","secret":"thisIsPassword@","external_controller":":10020"}
   }
 }
