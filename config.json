@@ -215,8 +215,8 @@
       {"tag":"onedrive","server":"dns.alidns.com","domain_resolver":"hosts","detour":"onedrive","type":"https"},
       {"tag":"direct","server":"dns.alidns.com","domain_resolver":"hosts","type":"https"},
       {"tag":"fakeip","inet4_range":"198.18.0.0/15","inet6_range":"fc00::/18","type":"fakeip"},
+      {"tag":"local","server":"211.138.240.100","type":"udp"},
       {"tag":"local","server":"223.5.5.5","type":"udp"},
-      // {"tag":"local","bind_interface":"pppoe-wan","type":"local"},
       // {"tag":"local","type":"dhcp"},
       // {"tag":"local","type":"local"},
       {"tag":"hosts","predefined":{"time.cloudflare.com":["162.159.200.123","162.159.200.1"],"dns.pub":["1.12.12.21","120.53.53.53"],"dns.alidns.com":["223.5.5.5","223.6.6.6"],"dns.google":["8.8.8.8","8.8.4.4"],"dns.cloudflare.com":["104.16.132.229","104.16.133.229"],"cloudflare-dns.com":["104.16.248.249","104.16.249.249"],"localhost":["127.0.0.1","::1"]},"type":"hosts"}
